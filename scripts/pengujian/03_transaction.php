@@ -47,6 +47,15 @@ echo "Sesudah (harus sama persis dengan sebelum -> rollback berhasil):\n"; state
 
 echo "\n=== 3. PENGEMBALIAN TERLAMBAT (Value Object Denda) ===\n";
 $late = Loan::overdue()->first();
+if (!$late) {
+    // Peminjaman terlambat dari seeder sudah pernah dikembalikan (skrip dijalankan ulang):
+    // buat satu peminjaman baru lalu mundurkan jatuh temponya agar denda tetap bisa diuji.
+    $lateMember = Member::where('status', '!=', 'suspended')->orderBy('active_loans_count')->orderBy('id')->first();
+    $lateBook = Book::available()->orderByDesc('stock')->orderBy('id')->first();
+    $late = $service->borrow($lateMember->id, [['book_id' => $lateBook->id, 'quantity' => 1]]);
+    Loan::whereKey($late->id)->update(['borrowed_at' => now()->subDays(12), 'due_at' => now()->subDays(5)]);
+    $late = Loan::find($late->id);
+}
 echo "Peminjaman terlambat: {$late->loan_number}, jatuh tempo {$late->due_at->toDateString()}\n";
 $returned = $service->returnLoan($late);
 echo "Status: {$returned->status}, total denda: Rp " . number_format($returned->total_fine, 0, ',', '.') . "\n";
