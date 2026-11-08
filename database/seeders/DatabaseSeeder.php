@@ -37,5 +37,8 @@ class DatabaseSeeder extends Seeder
                 ['added_at' => now()]
             );
         });
+
+        // Sistem Perpustakaan (Catalog, Membership, Circulation)
+        $this->call(LibrarySeeder::class);
     }
 }
