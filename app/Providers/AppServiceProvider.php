@@ -3,8 +3,12 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Modules\Shared\Contracts\ProductServiceInterface;
+use Modules\Catalog\Services\BookService;
+use Modules\Membership\Services\MemberService;
 use Modules\Products\Services\ProductService;
+use Modules\Shared\Contracts\BookServiceInterface;
+use Modules\Shared\Contracts\MemberServiceInterface;
+use Modules\Shared\Contracts\ProductServiceInterface;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -14,6 +18,10 @@ class AppServiceProvider extends ServiceProvider
             ProductServiceInterface::class,
             ProductService::class
         );
+
+        // Contract antar bounded context (Sistem Perpustakaan)
+        $this->app->bind(BookServiceInterface::class, BookService::class);
+        $this->app->bind(MemberServiceInterface::class, MemberService::class);
     }
 
     public function boot(): void
@@ -21,3 +29,4 @@ class AppServiceProvider extends ServiceProvider
         //
     }
 }
+
